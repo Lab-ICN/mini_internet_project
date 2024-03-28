@@ -1,1 +1,0 @@
-ln -s "$HOME/praktikum_jarkom_mini_internet_project/connect_as.sh" "$HOME/connect_as.sh"
