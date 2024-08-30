@@ -7,7 +7,7 @@ fi
 
 #install packages
 sudo apt update
-sudo apt install openvswitch-switch systemd-zram-generator ufw openvpn qemu-guest-agent
+sudo apt install openvswitch-switch systemd-zram-generator ufw openvpn qemu-guest-agent -y
 sudo systemctl start qemu-guest-agent.service
 curl -fsSL https://get.docker.com | sudo sh
 
