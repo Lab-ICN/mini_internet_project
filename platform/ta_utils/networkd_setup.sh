@@ -28,4 +28,4 @@ sudo cp $TEMPLATE_FILE $DEST_FILE
 sudo sed -i "s/\$IP_ADDRESS/$IP_ADDRESS/g" $DEST_FILE
 
 # Restart systemd-networkd to apply changes
-#systemctl restart systemd-networkd
+systemctl restart systemd-networkd
