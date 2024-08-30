@@ -1,0 +1,7 @@
+[Match]
+Name=ens18
+
+[Network]
+Address=$IP_ADDRESS/25
+Gateway=10.34.4.129
+DNS=10.34.4.129
