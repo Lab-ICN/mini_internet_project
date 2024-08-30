@@ -16,6 +16,7 @@ sudo usermod -aG docker $USER
 
 #setup zram
 sudo cp ./ta_utils/zram-generator.conf /etc/systemd/zram-generator.conf
+sudo systemctl daemon-reload
 sudo systemctl start systemd-zram-setup@zram0.service
 sudo swapon -p 100 -d /dev/zram0
 
