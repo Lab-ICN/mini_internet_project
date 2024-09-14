@@ -26,7 +26,7 @@ save_configs() {
     docker exec -itw /root ${as}_ssh "./save_configs.sh" > /dev/null
 
     configName=$(docker exec -itw /root ${as}_ssh bash -c 'find . -maxdepth 1 -regex \./.*.tar.gz' | sed -e 's/\r$//')
-    docker exec -itw /root ${as}_ssh bash -c "mv $configName configs-as-${as}.tar.gz"
+    docker exec -itw /root ${as}_ssh bash -c "mv ${configName[-1]} configs-as-${as}.tar.gz"
 
     docker cp ${as}_ssh:/root/configs-as-${as}.tar.gz ./configs-as-${as}.tar.gz
   done
