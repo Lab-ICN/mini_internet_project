@@ -22,7 +22,7 @@ sudo swapon -p 100 -d /dev/zram0
 
 #setup mini-net
 ip_addr=$(ip -o -4 addr show ens18 | awk '{print $4}' | cut -d/ -f1)
-sed -i "s/HOSTNAME=.*/HOSTNAME=\"$ip_addr\"/" setup/website_setup.sh
+sed -i "s/WEBSERVER_HOSTNAME=.*/WEBSERVER_HOSTNAME=\"$ip_addr\"/" config/variables.sh
 sed -i "s|CONFIG_DIR=.*|CONFIG_DIR=$(pwd)/config|" utils/iptables/filters.sh
 
 sudo ./startup.sh .
