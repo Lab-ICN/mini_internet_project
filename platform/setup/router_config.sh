@@ -197,8 +197,6 @@ for ((k = 0; k < group_numbers; k++)); do
             location="${configdir}/conf_full.sh"
 
             {
-                echo "bgp multiple-instance"
-
                 for ((i = 0; i < n_extern_links; i++)); do
                     row_i=(${extern_links[$i]})
                     grp_1="${row_i[0]}"
@@ -217,20 +215,19 @@ for ((k = 0; k < group_numbers; k++)); do
                         subnet1="$(subnet_router_IXP ${grp_1} ${grp_2} group)"
                         subnet2="$(subnet_router_IXP ${grp_1} ${grp_2} IXP)"
 
-                        echo "ip community-list ${grp_1} permit ${grp_2}:${grp_1}"
+                        echo "bgp community-list ${grp_1} permit ${grp_2}:${grp_1}"
                         echo "route-map ${grp_1}_EXPORT permit 10"
-                        echo "set ip next-hop ${subnet1%/*}"
-                        echo "exit"
-                        echo "route-map ${grp_1}_IMPORT permit 10"
                         echo "match community ${grp_1}"
                         echo "exit"
+                        echo "route-map ${grp_1}_IMPORT permit 10"
+                        echo "exit"
                         echo "router bgp ${grp_2}"
-                        echo "bgp router-id 180.80.${grp_2}.0"
+                        echo "bgp router-id 180.${grp_2}.0.${grp_2}"
                         echo "neighbor ${subnet1%/*} remote-as ${grp_1}"
                         echo "neighbor ${subnet1%/*} activate"
                         echo "neighbor ${subnet1%/*} route-server-client"
-                        echo "neighbor ${subnet1%/*} route-map ${grp_1}_IMPORT import"
-                        echo "neighbor ${subnet1%/*} route-map ${grp_1}_EXPORT export"
+                        echo "neighbor ${subnet1%/*} route-map ${grp_1}_IMPORT in"
+                        echo "neighbor ${subnet1%/*} route-map ${grp_1}_EXPORT out"
                         echo "exit"
 
                         docker exec -d "${group_number}_IXP" bash -c "ovs-vsctl add-port IXP grp_${grp_1}"
@@ -293,6 +290,7 @@ for ((i = 0; i < n_extern_links; i++)); do
             echo "neighbor ${subnet2%???} activate"
             echo "neighbor ${subnet2%???} route-map IXP_OUT_${grp_2} out"
             echo "neighbor ${subnet2%???} route-map IXP_IN_${grp_2} in"
+            echo "no neighbor ${subnet2%???} enforce-first-as"
             echo "exit"
 
             str_tmp=''
@@ -586,12 +584,7 @@ for ((k = 0; k < group_numbers; k++)); do
         else # IXP
             config_dir="${DIRECTORY}/groups/g${group_number}/config"
             docker cp "${config_dir}/conf_full.sh" "${group_number}_IXP":/conf_full.sh > /dev/null
-            # The IXP is running an older Quagga version that does not support the
-            # -f command, so we need to feed the file in manually as a workaround.
-            # docker exec -d "${group_number}_IXP" ./conf_full.sh &
-            # tail -n +2 removes the first shebang line of the file.
-            docker exec -d "${group_number}_IXP" bash -c 'vtysh -c "conf t" -c "$(tail -n +2 conf_full.sh)" -c "exit"' &
-
+            docker exec -d "${group_number}_IXP" /conf_full.sh &
             docker exec -d "${group_number}_IXP" bash -c "ifconfig IXP 180.${group_number}.0.${group_number}/24" &
         fi
     ) &

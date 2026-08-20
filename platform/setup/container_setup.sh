@@ -309,7 +309,8 @@ for ((k = 0; k < group_numbers; k++)); do
             location="${DIRECTORY}"/groups/g"${group_number}"
             docker run -itd --net='none' --name="${group_number}""_IXP" \
                 --pids-limit 200 --hostname "${group_number}""_IXP" \
-                -v "${location}"/daemons:/etc/quagga/daemons \
+                -v "${location}"/daemons:/etc/frr/daemons \
+                -v "${location}"/frr.conf:/etc/frr/frr.conf \
                 --privileged \
                 --sysctl net.ipv4.ip_forward=1 \
                 --sysctl net.ipv4.icmp_ratelimit=0 \
