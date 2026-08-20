@@ -3,6 +3,7 @@
 set -e
 
 command=/usr/share/openvswitch/scripts/ovs-ctl
+status_interval="${OVS_STATUS_INTERVAL:-5}"
 
 function stop() {
     $command stop
@@ -26,7 +27,7 @@ ovs-ofctl add-flow IXP action=NORMAL
 # Loop while the daemons are alive.
 # status returns exit code 0 only if all daemons are are running.
 while $command status > /dev/null ; do
-    sleep 0.5
+    sleep "${status_interval}"
 done
 
 $command status

@@ -3,6 +3,7 @@
 set -e
 
 command=/usr/lib/frr/frrinit.sh
+status_interval="${FRR_STATUS_INTERVAL:-5}"
 
 function stop() {
     $command stop
@@ -23,7 +24,7 @@ sleep 2
 # Loop while the daemons are alive.
 # status returns exit code 0 only if all daemons are are running.
 while $command status > /dev/null ; do
-    sleep 0.5
+    sleep "${status_interval}"
 done
 
 $command status

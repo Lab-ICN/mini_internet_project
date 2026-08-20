@@ -73,6 +73,7 @@ for ((k = 0; k < group_numbers; k++)); do
             subnet_ssh_to_ctn="$(subnet_sshContainer_groupContainer "${group_number}" -1 -1 "sshContainer")"
             docker run -itd --name="${group_number}_ssh" \
                 --cpus=2 --pids-limit 100 --hostname="g${group_number}-proxy" --cap-add=NET_ADMIN \
+                -e "VPN_OBSERVER_SLEEP=${VPN_OBSERVER_SLEEP}" \
                 -v "${location}"/goto.sh:/root/goto.sh \
                 -v "${location}"/save_configs.sh:/root/save_configs.sh \
                 -v "${location}"/restore_configs.sh:/root/restore_configs.sh \
@@ -110,6 +111,8 @@ for ((k = 0; k < group_numbers; k++)); do
                 docker run -itd --dns="${subnet_dns%/*}" --cap-add=NET_ADMIN \
                     --cpus=2 --pids-limit 1024 --hostname "${sname}" \
                     --name=${group_number}_L2_${l2name}_${sname} \
+                    -e "VPN_OBSERVER_SLEEP=${VPN_OBSERVER_SLEEP}" \
+                    -e "OVS_STATUS_INTERVAL=${OVS_STATUS_INTERVAL}" \
                     --cap-add=ALL \
                     --cap-drop=SYS_RESOURCE \
                     --sysctl net.ipv4.ip_forward=1 \
@@ -124,6 +127,7 @@ for ((k = 0; k < group_numbers; k++)); do
                     --sysctl net.ipv6.icmp.ratelimit=0 \
                     -v /etc/timezone:/etc/timezone:ro \
                     -v /etc/localtime:/etc/localtime:ro \
+                    -v "${DIRECTORY}/docker_images/switch/run_ovs.sh:/usr/local/bin/run_ovs:ro" \
                     --log-opt max-size=1m --log-opt max-file=3 \
                     --network="${ssh_to_ctn_bname}" --ip="${subnet_ssh_switch%/*}" \
                     "${DOCKERHUB_PREFIX}d_switch" > /dev/null
@@ -152,6 +156,7 @@ for ((k = 0; k < group_numbers; k++)); do
                     docker run -itd --dns="${subnet_dns%/*}" --cap-add=NET_ADMIN \
                         --cpus=2 --pids-limit 100 --hostname "${hname}" \
                         --name="${group_number}""_L2_""${l2name}""_""${hname}" \
+                        -e "VPN_OBSERVER_SLEEP=${VPN_OBSERVER_SLEEP}" \
                         --sysctl net.ipv4.icmp_ratelimit=0 \
                         --sysctl net.ipv4.icmp_echo_ignore_broadcasts=0 \
                         --sysctl net.ipv6.conf.all.disable_ipv6=0 \
@@ -199,6 +204,8 @@ for ((k = 0; k < group_numbers; k++)); do
                     # start router
                     docker run -itd --dns="${subnet_dns%/*}" \
                         --name="${group_number}""_""${rname}""router" \
+                        -e "VPN_OBSERVER_SLEEP=${VPN_OBSERVER_SLEEP}" \
+                        -e "FRR_STATUS_INTERVAL=${FRR_STATUS_INTERVAL}" \
                         --sysctl net.ipv4.ip_forward=1 \
                         --sysctl net.ipv4.icmp_ratelimit=0 \
                         --sysctl net.ipv4.fib_multipath_hash_policy=1 \
@@ -220,6 +227,7 @@ for ((k = 0; k < group_numbers; k++)); do
                         -v "${location}"/daemons:/etc/frr/daemons \
                         -v "${location}"/frr.conf:/etc/frr/frr.conf \
                         -v /etc/timezone:/etc/timezone:ro \
+                        -v "${DIRECTORY}/docker_images/router/run_frr.sh:/usr/local/bin/run_frr:ro" \
                         --log-opt max-size=1m --log-opt max-file=3 \
                         --network="${ssh_to_ctn_bname}" --ip="${subnet_ssh_router%/*}" \
                         "${DOCKERHUB_PREFIX}d_router" > /dev/null
@@ -279,6 +287,7 @@ for ((k = 0; k < group_numbers; k++)); do
                     docker run -itd --dns="${subnet_dns%/*}" \
                         --name="${container_name}" --cap-add=NET_ADMIN \
                         --cpus=2 --pids-limit 100 --hostname "${rname}""_host${extra}" \
+                        -e "VPN_OBSERVER_SLEEP=${VPN_OBSERVER_SLEEP}" \
                         --sysctl net.ipv4.icmp_ratelimit=0 \
                         --sysctl net.ipv4.icmp_echo_ignore_broadcasts=0 \
                         --sysctl net.ipv6.conf.all.disable_ipv6=0 \
@@ -309,8 +318,13 @@ for ((k = 0; k < group_numbers; k++)); do
             location="${DIRECTORY}"/groups/g"${group_number}"
             docker run -itd --net='none' --name="${group_number}""_IXP" \
                 --pids-limit 200 --hostname "${group_number}""_IXP" \
+                -e "VPN_OBSERVER_SLEEP=${VPN_OBSERVER_SLEEP}" \
+                -e "FRR_STATUS_INTERVAL=${FRR_STATUS_INTERVAL}" \
+                -e "OVS_STATUS_INTERVAL=${OVS_STATUS_INTERVAL}" \
                 -v "${location}"/daemons:/etc/frr/daemons \
                 -v "${location}"/frr.conf:/etc/frr/frr.conf \
+                -v "${DIRECTORY}/docker_images/ixp/run_frr.sh:/usr/local/bin/run_frr:ro" \
+                -v "${DIRECTORY}/docker_images/ixp/run_ovs.sh:/usr/local/bin/run_ovs:ro" \
                 --privileged \
                 --sysctl net.ipv4.ip_forward=1 \
                 --sysctl net.ipv4.icmp_ratelimit=0 \

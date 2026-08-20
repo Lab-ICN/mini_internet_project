@@ -8,6 +8,18 @@
 # If it isn't empty, it must end with a slash.
 DOCKERHUB_PREFIX="miniinterneteth/"
 
+# Interval in seconds between read-only WireGuard status snapshots. This does
+# not affect VPN packet forwarding or handshakes; it only throttles the
+# wg_observer process that updates status.json inside network containers.
+VPN_OBSERVER_SLEEP=10
+
+# Health-check intervals for the FRR and Open vSwitch wrapper processes. These
+# checks only detect daemon failures; they do not affect routing or forwarding
+# timers. Five seconds avoids aggressive process spawning while retaining fast
+# failure detection.
+FRR_STATUS_INTERVAL=30
+OVS_STATUS_INTERVAL=30
+
 # This URL will be suggested as the default location for students
 # to download their configs. It should be publicly accessible via ssh at port
 # 2000 + X, where X is each AS number.
