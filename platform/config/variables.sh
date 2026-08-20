@@ -43,7 +43,7 @@ WEBSERVER_PORT_HTTPS="443"
 # Use the one you want, make sure to make it reachable from outside.
 WEBSERVER_PORT_KRILL="3000"
 # Put your timezone here.
-WEBSERVER_TZ="Europe/Zurich"
+WEBSERVER_TZ="Asia/Jakarta"
 
 # =============================================================================
 # Connections
